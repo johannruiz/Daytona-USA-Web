@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090e18">
+  <title>Daytona USA · WebAssembly port</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand"><span class="logo-square">D</span><span>DAYTONA <b>WEB</b><small>MODEL 2 / NATIVE RECOMP</small></span></div>
+      <span class="tech-tag"><span class="led"></span>WebAssembly · Original engine</span>
+    </header>
+    <main>
+      <section class="game-layout" aria-label="Juego">
+        <div class="game-panel">
+          <div class="panel-top"><span>ARCADE OUTPUT</span><span id="resolution">496 × 384</span></div>
+          <div class="screen-wrap">
+            <canvas id="screen" width="496" height="384" aria-label="Pantalla de Daytona USA"></canvas>
+            <div id="overlay" class="overlay">
+              <div class="overlay-logo">DAYTONA<span>USA</span></div>
+              <p id="message">Carga tu ROM original para iniciar el motor recompilado.</p>
+              <div class="overlay-line"></div>
+              <span class="overlay-sub">SIN CIRCUITOS RECREADOS · SIN FÍSICA INVENTADA</span>
+            </div>
+          </div>
+          <div class="bottom-status">
+            <div><span class="status-dot" id="statusDot"></span><strong id="status">Esperando WebAssembly</strong></div>
+            <span><b id="fps">--</b> FPS <span class="divider-pipe">|</span> <b id="frames">0</b> frames</span>
+          </div>
+        </div>
+        <aside class="side-panel">
+          <span class="eyebrow">01 / ROM ORIGINAL</span>
+          <h1>Daytona USA<br><em>en el navegador.</em></h1>
+          <p class="intro">Utiliza el código recompilado del arcade. El juego, sus circuitos y la física proceden de la ROM del usuario, no de una adaptación visual.</p>
+          <label class="dropzone" id="dropzone" for="romInput">
+            <input type="file" id="romInput" accept=".zip,application/zip">
+            <span class="drop-icon">↥</span><strong>Seleccionar ROM ZIP</strong>
+            <small>Revision A (1994) · set <code>daytona</code></small>
+            <span class="dnd">También puedes arrastrar el archivo</span>
+          </label>
+          <div class="rom-meta" id="romMeta" aria-live="polite">La ROM se procesa localmente. No se envía al servidor.</div>
+          <label class="toggle-line"><input type="checkbox" id="enableAudio" checked> Emular sonido original (FM + MultiPCM)</label>
+          <div class="button-row">
+            <button type="button" id="startBtn" disabled>Iniciar juego <span>↗</span></button>
+            <button type="button" id="soundBtn" class="secondary" disabled>Activar audio</button>
+          </div>
+          <button type="button" id="fullscreenBtn" class="text-btn">Pantalla completa <span>⤢</span></button>
+          <hr>
+          <span class="eyebrow">02 / CONTROLES</span>
+          <div class="controls-list">
+            <div><span>Dirección</span><kbd>←</kbd><kbd>→</kbd></div>
+            <div><span>Acelerar / frenar</span><kbd>↑</kbd><kbd>↓</kbd></div>
+            <div><span>Moneda / Start</span><kbd>5</kbd><kbd>↵</kbd></div>
+            <div><span>Marchas</span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd></div>
+            <div><span>Cambiar marcha</span><kbd>Q</kbd><kbd>W</kbd></div>
+            <div><span>Cámaras</span><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><kbd>F</kbd></div>
+          </div>
+          <p class="footnote">Revision A puede arrancar en modo de cabinas enlazadas. Pulsa F2 y configura cabina individual en GAME SYSTEM; se guardará en este navegador.</p>
+          <p class="footnote">Admite gamepad. Necesita compilación WebAssembly del motor original. Si faltan los archivos <code>daytona_engine.js</code> y <code>.wasm</code>, la pantalla no inicia el juego.</p>
+        </aside>
+      </section>
+    </main>
+    <footer><span>Port web comunitario experimental · Código original <a href="https://github.com/alphanu1/daytona-arcade-recomp" target="_blank" rel="noreferrer">daytona-arcade-recomp</a></span><span>Los datos del juego no se distribuyen.</span></footer>
+  </div>
+  <script src="daytona_engine.js" defer></script>
+  <script type="module" src="main.js"></script>
+</body>
+</html>

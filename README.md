@@ -1,114 +1,143 @@
-# Daytona USA WebAssembly — port en desarrollo (fase de integración)
+# Daytona USA WebGPU
 
-El objetivo de este proyecto es trasladar al navegador **el motor original** de
-[alphanu1/daytona-arcade-recomp](https://github.com/alphanu1/daytona-arcade-recomp),
-no recrear Daytona USA en JavaScript. Se emplea el código recompilado del i960,
-TGP y 68000, los recursos de la ROM del usuario y el renderizador de referencia
-(`runtime/geo.cpp`, `raster.cpp`, `video.cpp`).
+A browser port of [daytona-arcade-recomp](https://github.com/alphanu1/daytona-arcade-recomp), powered by **WebAssembly and WebGPU**.
 
-**Estado de esta entrega: puente C++ y frontend web implementados; NO es un
-juego web listo para abrir.** Se necesita compilar el proyecto con Emscripten,
-lo cual no fue posible en el entorno de entrega (sin emsdk ni clon completo).
-Los tests aquí realizados NO sustituyen un arranque real en el navegador.
+Play Daytona USA directly in your browser with widescreen rendering, native window resolution, keyboard and gamepad support, and touch controls for phones. Tested on multiple computers with good performance and no reported errors in those sessions.
 
-## Procedimiento de compilación (Linux, macOS o WSL2 en Windows)
+## Features
 
-1. Descarga las herramientas `git`, `cmake`, `ninja`, `python3`, `clang` y
-   el SDK de [Emscripten](https://emscripten.org/docs/getting_started/downloads.html).
-2. Clona el proyecto original y consigue sus dependencias ejecutando el setup oficial:
+- Original recompiled i960, TGP and 68000 game programs.
+- WebGPU rendering for 3D geometry.
+- **Enhanced mode**, enabled by default:
+  - Native window resolution, including display pixel density.
+  - Widescreen camera that reveals additional scenery.
+  - Increased scenery draw distance at level **+1**.
+- **Classic mode** with the original resolution, aspect ratio and draw distance.
+- Arcade-inspired interface with local ROM import.
+- Keyboard, standard gamepad and multitouch controls.
+- Automatic arcade audio with a mute button.
+- Local persistence for arcade settings and backup RAM.
+- A discreet FPS counter.
 
-   ```sh
-   git clone https://github.com/alphanu1/daytona-arcade-recomp.git
-   cd daytona-arcade-recomp
-   mkdir -p roms
-   # Copia tu ZIP original: aunque tu archivo se llame daytona93.zip,
-   # contiene los 30 chips válidos del set Revision A, así que nómbralo daytona.zip.
-   cp /ruta/a/daytona93.zip roms/daytona.zip
-   ./setup.sh
-   python3 scripts/recompile.py --set daytona --build-dir build-daytona
-   ```
+On a fresh save, the game starts with **Single cabinet, Export region and zero credits**, allowing attract mode to play automatically. Existing saves retain their settings and credits.
 
-3. Activa Emscripten en esa terminal:
+## Requirements
 
-   ```sh
-   source /ruta/al/emsdk/emsdk_env.sh
-   ```
+- A browser and device with **WebGPU support**.
+- **HTTPS or localhost**.
+- Your own **Daytona USA Revision A (1994), set `daytona`**, ROM ZIP.
 
-4. Descomprime este paquete, y **desde su carpeta** ejecuta:
+The importer validates the ROM contents. A ZIP filename alone does not identify its revision. Other revisions, including the `daytona93` set, are not supported by this build.
 
-   ```sh
-   ./scripts/build_web.sh /ruta/a/daytona-arcade-recomp
-   ```
+## Playing
 
-   El instalador añade `platform/web/` y una inclusión limitada a Emscripten
-   en `CMakeLists.txt`. Si el upstream cambia, puede necesitar un ajuste.
+On a deployed website:
 
-5. Si compila, levanta un servidor HTTP local:
+1. Open the game in a WebGPU-compatible browser.
+2. Select your supported ROM ZIP.
+3. Choose **Enhanced** or **Classic**.
+4. Select **Enter arcade**.
+5. Watch attract mode, or insert a coin and start playing.
 
-   ```sh
-   cd /ruta/a/daytona-arcade-recomp/build-web/web
-   python3 -m http.server 8080
-   ```
+The selected ROM is processed locally inside your browser. The frontend does not upload it to a server.
 
-   Abre http://localhost:8080 y selecciona en la página la misma ROM ZIP
-   original. **No basta con abrir `index.html` con file://.**
+For local use, follow [BUILD.md](BUILD.md), then run:
 
-Los ficheros esperados en `build-web/web/` son
-`index.html`, `main.js`, `style.css`, `daytona_engine.js` y
-`daytona_engine.wasm`. Si faltan los dos últimos, la interfaz informa
-que todavía no dispone del motor compilado.
+```sh
+node scripts/serve.js dist 8080
+```
 
-## Qué conserva del arcade
+Open [localhost:8080](http://localhost:8080). Opening `index.html` through `file://` is not supported.
 
-- Lógica original del juego generada desde la Revision A (`daytona`), no lógica inventada.
-- Mapas, coches, física y cámaras originales, leídos de la ROM del usuario.
-- Renderizador de referencia del recompilador, con la geometría de Sega Model 2;
-  se muestra en 496 × 384 sin reducción previa.
-- Entrada analógica en valores de la placa arcade, marchas y vista.
-- Placa de sonido YM3438 + MultiPCM (habilitable al cargar), con mezcla
-  experimental hacia WebAudio a 48 kHz.
-- EEPROM y backup RAM guardados localmente en el navegador tras la carrera.
+## Controls
 
-## Qué falta validar o mejorar
+### Keyboard
 
-1. **Compilar en Emscripten** y corregir cualquier incompatibilidad entre la
-   versión real del código y la toolchain web. Aquí solo se verificó el C++
-   del puente contra dobles mínimos de sus APIs.
-2. **Arranque real:** la web debe ejecutar al menos una carrera y mostrar la
-   imagen con el renderizador de referencia sin errores.
-3. **Rendimiento:** el renderizador fiel por CPU puede ser demasiado lento
-   en WebAssembly. El primer objetivo es corrección, luego portar a WebGL2
-   o WebGPU el renderizador SDL_GPU para llegar a ~57,52 FPS.
-4. **Audio:** la aproximación de re-muestreo está implementada, pero no
-   comprobada acústicamente ni contra una traza de referencia.
-5. **Persistencia, mando y navegación:** probar uso prolongado, gamepads,
-   pantallas de configuración y reinicio en varios navegadores.
-6. **Multiplayer/link y opciones avanzadas** todavía no adaptadas al navegador.
+| Action | Key |
+| --- | --- |
+| Steer | Left / Right arrows |
+| Accelerate | Up arrow |
+| Brake | Down arrow |
+| Insert coin | 5 |
+| Start | Enter |
+| Select gear | 1–4 |
+| Shift down / up | Q / W |
+| Camera views | A / S / D / F |
+| Arcade settings | F2 |
+| Service button | F3 |
+| Pause and open menu | Esc |
 
-Importante para la Revision A de 1994: sus ajustes originales pueden iniciar
-como una pareja de cabinas enlazadas. En modo test (F2), GAME SYSTEM permite
-seleccionar una cabina única. La EEPROM se guarda en localStorage para próximas
-sesiones.
+**Use the accelerator to confirm course and car selections.**
 
-## Controles
+F2 opens the original arcade settings. Inside that menu, **F/S** moves the cursor, **D/S** changes values, and **Enter** selects. Choose **EXIT** to return to the game.
 
-- Flechas izquierda/derecha: volante; arriba/abajo: acelerador/freno.
-- `5` moneda, Enter inicio, `1`–`4` marchas, `Q` / `W` reducir/subir marcha.
-- `A`–`F`: vistas VR1–VR4; `F2` test; `F3` servicio.
-- Gamepad estándar: stick izquierdo, gatillos, botones frontales y hombros.
+### Standard gamepad
 
-## Licencias y ROM
+| Action | Control |
+| --- | --- |
+| Steer | Left stick |
+| Accelerate / brake | RT / LT |
+| Shift down / up | LB / RB |
+| Insert coin | Back / Select |
+| Start | Start |
+| Camera views | A / B / X / Y |
 
-El código del recompilador principal es BSD-3-Clause; los fragmentos tomados
-originariamente de MAME mantienen sus avisos correspondientes, y algunas
-bibliotecas externas tienen licencias propias. Consulta `THIRD_PARTY.md`
-del repositorio original. Daytona USA y sus recursos pertenecen a SEGA.
-Este paquete no contiene ninguna ROM, gráficos del juego ni código generado
-procedente de sus ROMs; el usuario aporta el archivo localmente.
+### Phone
 
-## Verificaciones de esta entrega
+Touch controls appear during gameplay:
 
-- ZIP adjuntado: 30/30 componentes Revision A con CRC esperado.
-- Compilación nativa de prueba del puente C++ contra interfaces mínimas simuladas.
-- Análisis sintáctico de `main.js`, scripts de instalación y CMake.
-- **No** hay un `.wasm` ni un navegador mostrando el juego original en esta entrega.
+- Drag the **left thumb pad** to steer.
+- Hold **GAS** or **BRAKE** with your right thumb.
+- Tap **− / +** to shift gears.
+- Tap **VIEW** to cycle camera views.
+- Tap **COIN** to insert credit and **START** to begin.
+- Tap **☰** to pause and open the menu.
+- Tap **⋯** to reveal F2, service and arcade menu controls.
+
+Steering and pedals support simultaneous touches. Landscape provides the widest view; portrait preserves the complete original HUD.
+
+## Saves
+
+Arcade settings and backup RAM are saved in your browser’s local storage.
+
+Saves are specific to the browser and website address. Clearing site data removes them. This is arcade persistence, not an emulator save-state system.
+
+## Building and hosting
+
+This repository contains the web frontend, engine bridge, shaders, build helpers and documentation. It does not include ROMs, generated processor sources or the compiled game engine.
+
+- [Build instructions](BUILD.md)
+- [Hosting and GitHub Pages](docs/DEPLOYMENT.md)
+- [Testing](docs/TESTING.md)
+- [Verified project status](STATUS.md)
+- [Release preparation](docs/RELEASE.md)
+
+The port uses upstream commit:
+
+```text
+82201ed63668c99a946120bd0b8010b8f9599259
+```
+
+## Compatibility notes
+
+Performance depends on your browser, GPU, window resolution and selected mode. Classic reduces rendering demands while preserving the original presentation.
+
+Enhanced retains the original texture and 2D artwork detail. Increased draw distance reduces scenery popping but does not eliminate every appearance change controlled by the game.
+
+Linked-cabinet multiplayer is not implemented in this browser port.
+
+## Contributing
+
+Bug reports, compatibility results and focused improvements are welcome. Include your browser, operating system, hardware, selected mode and reproduction steps.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Do not attach ROMs or extracted game data to issues or pull requests.
+
+## Credits and licenses
+
+Based on [daytona-arcade-recomp](https://github.com/alphanu1/daytona-arcade-recomp), by Ben Templeman and contributors.
+
+See [LICENSE](LICENSE), [THIRD_PARTY.md](THIRD_PARTY.md) and [NOTICE.md) for software attribution and asset scope.
+
+Daytona USA and SEGA branding remain separate from the software license. This is an independent community project with no implied affiliation or endorsement.
+
+The compiled WebAssembly engine contains game instructions recompiled from the supplied ROM. Review the distribution scope before publishing compiled binaries or a playable deployment.

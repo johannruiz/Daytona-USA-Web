@@ -2,7 +2,7 @@
 
 A browser port of [daytona-arcade-recomp](https://github.com/alphanu1/daytona-arcade-recomp), powered by **WebAssembly and WebGPU**.
 
-Play Daytona USA directly in your browser with widescreen rendering, native window resolution, keyboard and gamepad support, and touch controls for phones. Tested on multiple computers with good performance and no reported errors in those sessions.
+Play Daytona USA directly in your browser with widescreen rendering, native window resolution, keyboard and gamepad support, and touch controls for phones. Tested by the project owner on multiple computers with good performance and no reported errors in those sessions.
 
 ## Features
 
@@ -41,13 +41,19 @@ On a deployed website:
 
 The selected ROM is processed locally inside your browser. The frontend does not upload it to a server.
 
-For local use, follow [BUILD.md](BUILD.md), then run:
+This compiled package includes index.html and its engine files directly at the root. For local use, run:
 
 ```sh
-node scripts/serve.js dist 8080
+node serve.js . 8080
 ```
 
 Open [localhost:8080](http://localhost:8080). Opening `index.html` through `file://` is not supported.
+
+## GitHub Pages
+
+Upload the **extracted contents** of this package to your chosen publishing branch. Keep `index.html`, `.nojekyll`, the engine JS/WASM and frontend assets together at the repository root. Do not upload only the ZIP or nest the files inside another folder.
+
+In **Settings → Pages**, select **Deploy from a branch**, choose that branch and **/ (root)**, then Save. Open the HTTPS URL GitHub provides after deployment. See [GitHub Pages setup](docs/PAGES_QUICKSTART.md).
 
 ## Controls
 
@@ -98,13 +104,13 @@ Steering and pedals support simultaneous touches. Landscape provides the widest 
 
 ## Saves
 
-Arcade settings and backup RAM are saved in your browser’s local storage.
+Arcade settings and backup RAM are saved in your browser's local storage.
 
 Saves are specific to the browser and website address. Clearing site data removes them. This is arcade persistence, not an emulator save-state system.
 
 ## Building and hosting
 
-This repository contains the web frontend, engine bridge, shaders, build helpers and documentation. It does not include ROMs, generated processor sources or the compiled game engine.
+Alongside the compiled application, this package includes the web frontend, engine bridge, shaders, build helpers and documentation. The user's ROM ZIP, extracted ROM files and generated processor sources are not included.
 
 - [Build instructions](BUILD.md)
 - [Hosting and GitHub Pages](docs/DEPLOYMENT.md)
@@ -136,7 +142,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Do not attach ROMs or extracted game dat
 
 Based on [daytona-arcade-recomp](https://github.com/alphanu1/daytona-arcade-recomp), by Ben Templeman and contributors.
 
-See [LICENSE](LICENSE), [THIRD_PARTY.md](THIRD_PARTY.md) and [NOTICE.md) for software attribution and asset scope.
+See [LICENSE](LICENSE), [THIRD_PARTY.md](THIRD_PARTY.md) and [NOTICE.md](NOTICE.md) for software attribution and asset scope.
 
 Daytona USA and SEGA branding remain separate from the software license. This is an independent community project with no implied affiliation or endorsement.
 

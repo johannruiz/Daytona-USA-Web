@@ -1,0 +1,52 @@
+const {chromium}=require(process.env.PLAYWRIGHT_PATH || 'playwright');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+(async()=>{
+ if(!process.env.TEST_ROM)throw Error('Set TEST_ROM to the local Revision A ROM ZIP');
+ const browser=await chromium.launch({channel:'chrome',headless:true,args:['--enable-unsafe-webgpu']});
+ try{
+  const page=await browser.newPage({viewport:{width:844,height:390},hasTouch:true,isMobile:true});
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  page.on('console',m=>{if(m.type()==='error'&&!m.text().includes('404'))errors.push(m.text());});
+  await page.goto(process.env.TEST_URL || 'http://localhost:8080');
+  await page.waitForFunction(()=>document.querySelector('#status').textContent==='Engine ready');
+  await page.setInputFiles('#romInput',process.env.TEST_ROM);
+  await page.waitForFunction(()=>!document.querySelector('#startBtn').disabled);
+  await page.evaluate(async()=>{window.mobileState=(await import('/main.js')).getArcadeState;});
+  await page.click('#startBtn');
+  await page.waitForFunction(()=>mobileState().frames>=600,null,{timeout:180000});
+  assert.equal(await page.locator('#touchControls').isVisible(),true);
+  const cdp=await page.context().newCDPSession(page);
+  const point=async(selector,id,xFraction=.5)=>{
+   const b=await page.locator(selector).boundingBox();return {x:b.x+b.width*xFraction,y:b.y+b.height*.5,id};
+  };
+  const send=(type,points)=>cdp.send('Input.dispatchTouchEvent',{type,touchPoints:points});
+  const steer=await point('[data-steering]',1,.8),gas=await point('[data-action=gas]',2);
+  await send('touchStart',[steer]);await send('touchStart',[steer,gas]);
+  await page.waitForFunction(()=>mobileState().touch.steer>50&&mobileState().touch.accel===100);
+  await send('touchEnd',[gas]);
+  await page.waitForFunction(()=>mobileState().touch.steer>50&&mobileState().touch.accel===0);
+  await send('touchCancel',[]);
+  assert.deepEqual(await page.evaluate(()=>mobileState().touch),{steer:0,accel:0,brake:0,buttons:0});
+  const brake=await point('[data-action=brake]',3);await send('touchStart',[brake]);
+  await page.waitForFunction(()=>mobileState().touch.brake===100);await send('touchEnd',[]);
+  const up=await point('[data-action=up]',4);await send('touchStart',[up]);await send('touchEnd',[]);
+  assert.equal(await page.evaluate(()=>mobileState().gear),2);
+  const view=await point('[data-action=camera]',5);await send('touchStart',[view]);
+  await page.waitForFunction(()=>mobileState().touch.buttons===32);await send('touchEnd',[]);
+  await page.screenshot({path:'build/mobile-landscape-game.png'});
+  await page.click('[data-settings]');assert.equal(await page.locator('.touch-service').isVisible(),true);
+  await page.click('[data-settings]');
+  await send('touchStart',[gas]);await page.click('[data-menu]');
+  assert.equal(await page.locator('#overlay').isVisible(),true);
+  assert.equal(await page.locator('#touchControls').isVisible(),false);
+  assert.equal(await page.evaluate(()=>mobileState().touch.accel),0);
+  await send('touchEnd',[]);await page.click('#startBtn');
+  await page.setViewportSize({width:390,height:844});
+  await page.waitForFunction(()=>document.querySelector('#screen').width===390&&document.querySelector('#screen').height===844&&mobileState().width===496);
+  await page.screenshot({path:'build/mobile-portrait-game.png'});
+  assert.equal(await page.locator('.rotate-hint').isVisible(),true);
+  assert.deepEqual(errors,[]);fs.writeFileSync('build/mobile-errors.json',JSON.stringify(errors));
+  console.log('Real-game mobile checks passed: simultaneous steering/pedals, release/cancel, brake, gears, camera, pause and portrait/landscape.');
+ }finally{await browser.close();}
+})().catch(e=>{console.error(e);process.exitCode=1;});

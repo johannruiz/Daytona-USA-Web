@@ -6,6 +6,7 @@
 #include "runtime/game_loop.h"
 #include "runtime/rom_import.h"
 #include "runtime/sound_board.h"
+#include "daytona_gpu.h"
 
 #include <algorithm>
 #include <cmath>
@@ -17,10 +18,12 @@
 
 namespace {
 std::unique_ptr<rt::GameLoop> game;
+webgpu::Frame gpu_frame;
 std::string error_message;
 std::vector<float> audio_samples;  // interleaved stereo, 48 kHz
 int audio_frames = 0;
 uint64_t emitted_audio_frames = 0;
+double render_scale = 1.0;
 constexpr double output_rate = 48000.0;
 constexpr unsigned char gear_codes[5] = { 0, 2, 1, 6, 5 };
 
@@ -70,13 +73,14 @@ int daytona_load(const char *zip_path, int enable_audio) {
     audio_frames = 0;
     audio_samples.clear();
     emitted_audio_frames = 0;
-    if (!zip_path || !*zip_path) { error_message = "Selecciona un ZIP de Daytona USA Revision A (1994)."; return 0; }
+    if (!zip_path || !*zip_path) { error_message = "Choose a Daytona USA Revision A (1994) ROM ZIP."; return 0; }
     try {
         rt::M2Board::Images images = rt::import_rom_set(zip_path);
         // Verify expected TGP microcode. The C++ game code must have been
         // generated from this exact supported ROM revision on the host.
         (void)rt::tgp_program(images);
         game = std::make_unique<rt::GameLoop>(std::move(images), enable_audio != 0);
+        game->board().video().set_external_3d(true);
         return 1;
     } catch (const std::exception &ex) {
         error_message = ex.what();
@@ -90,8 +94,29 @@ int daytona_load(const char *zip_path, int enable_audio) {
 const char *daytona_error() { return error_message.c_str(); }
 void daytona_close() { game.reset(); audio_samples.clear(); audio_frames = 0; }
 int daytona_ready() { return game != nullptr; }
+uintptr_t daytona_vertices_ptr() { return reinterpret_cast<uintptr_t>(gpu_frame.verts_.data()); }
+int daytona_vertices_count() { return int(gpu_frame.verts_.size()); }
+uintptr_t daytona_batches_ptr() { return reinterpret_cast<uintptr_t>(gpu_frame.batches_.data()); }
+int daytona_batches_count() { return int(gpu_frame.batches_.size()); }
+uintptr_t daytona_background_ptr() { return game ? reinterpret_cast<uintptr_t>(game->board().video().background_layer().data()) : 0; }
+uintptr_t daytona_foreground_ptr() { return game ? reinterpret_cast<uintptr_t>(game->board().video().foreground_layer().data()) : 0; }
+uintptr_t daytona_tex0_ptr() { return game ? reinterpret_cast<uintptr_t>(game->board().video().gpu_mem().tex0) : 0; }
+uintptr_t daytona_tex1_ptr() { return game ? reinterpret_cast<uintptr_t>(game->board().video().gpu_mem().tex1) : 0; }
+double daytona_texture_generation() { return game ? double(game->board().video().gpu_mem().tex_generation) : 0; }
+uintptr_t daytona_luma_ptr() { return game ? reinterpret_cast<uintptr_t>(game->board().video().gpu_mem().lumaram) : 0; }
+uintptr_t daytona_xlat_ptr() { return reinterpret_cast<uintptr_t>(gpu_frame.xlat_table_.data()); }
 int daytona_width() { return game ? game->screen_width() : 496; }
 int daytona_height() { return rt::GameLoop::kHeight; }
+// Geometry uses the original vertical field of view; extra columns expose
+// more of the world. WebGPU rasterizes these coordinates at window resolution.
+void daytona_set_display(int enhanced, int width, int height) {
+    if (!game || width <= 0 || height <= 0) return;
+    game->set_aspect(enhanced ? double(width) / double(height) : 0.0);
+    game->set_stretch_backdrop(enhanced != 0);
+    game->set_hud_edges(enhanced != 0);
+    rt::GameLoop::set_draw_distance(enhanced ? 1 : 0);
+    render_scale = enhanced ? double(height) / rt::Video::H : 1.0;
+}
 // Pointer to ABGR bytes in native little-endian memory (BGRA byte order).
 uintptr_t daytona_frame_ptr() {
     if (!game || game->screen().empty()) return 0;
@@ -137,6 +162,7 @@ int daytona_step(int steer, int accel, int brake, int gear, unsigned buttons) {
     if (buttons & (1u << 7)) in.in1 &= uint8_t(~0x01); // camera 4
     try {
         game->run_frame(in);
+        gpu_frame.update(game->board().video(), render_scale);
         update_audio();
         return 1;
     } catch (const std::exception &ex) {

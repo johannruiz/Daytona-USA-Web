@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#05070b"><title>Daytona USA</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="arcade" aria-label="Daytona USA arcade">
+    <div class="idle-scene" aria-hidden="true"><div class="horizon"></div><div class="track"></div><span class="track-number">41</span></div>
+    <canvas id="screen" width="496" height="384" tabindex="-1" aria-label="Daytona USA game screen"></canvas>
+    <div class="fps" aria-label="Frames per second"><span id="fps">—</span><span>FPS</span></div>
+    <nav class="arcade-tools" aria-label="Arcade controls">
+      <button id="menuBtn" aria-label="Open ROM and controls menu" title="ROM & controls · Esc">☰</button>
+      <button id="soundBtn" disabled aria-label="Unmute sound" title="Sound">♫</button>
+      <button id="fullscreenBtn" aria-label="Enter fullscreen" title="Fullscreen">⛶</button>
+    </nav>
+    <div id="touchControls" class="touch-controls" aria-label="Touch driving controls">
+      <div class="touch-top">
+        <button data-menu aria-label="Pause and open menu">☰</button>
+        <div class="touch-actions"><button data-action="coin">COIN</button><button data-action="start">START</button><button data-action="camera" aria-label="Cycle camera view">VIEW</button><button data-settings aria-label="Show arcade settings controls">⋯</button></div>
+      </div>
+      <div class="touch-service" hidden><button data-action="test">F2</button><button data-action="service">SERVICE</button><button data-action="previous">↑</button><button data-action="next">↓</button><button data-action="value">CHANGE</button></div>
+      <div class="steering-pad" data-steering role="group" aria-label="Drag left or right to steer"><span>‹</span><span class="steering-knob">↔</span><span>›</span></div>
+      <div class="touch-gears"><button data-action="down" aria-label="Shift down">−</button><span id="touchGear">1</span><button data-action="up" aria-label="Shift up">+</button></div>
+      <div class="touch-pedals"><button data-action="brake">BRAKE</button><button data-action="gas">GAS</button></div>
+      <span class="rotate-hint">Rotate your phone for a wider view</span>
+    </div>
+  </main>
+  <div id="overlay" class="launcher">
+    <div class="launcher-content">
+      <section class="rom-modal" role="dialog" aria-modal="true" aria-labelledby="gameTitle" aria-describedby="message">
+        <button id="closeBtn" class="close-btn" aria-label="Return to game" hidden>×</button>
+        <div class="modal-stripe" aria-hidden="true"></div>
+        <div class="edition"><span class="checkers" aria-hidden="true"></span> THE ARCADE ORIGINAL <span class="checkers" aria-hidden="true"></span></div>
+        <h1 id="gameTitle" class="game-logo"><img src="daytona-logo.png" alt="Daytona USA" width="1532" height="796"></h1>
+        <p id="message" class="message">Choose your ROM to bring the arcade to life.</p>
+        <label class="dropzone" id="dropzone" for="romInput" tabindex="0" role="button" aria-label="Choose a Daytona USA ROM ZIP">
+          <input type="file" id="romInput" tabindex="-1" accept=".zip,application/zip">
+          <span class="file-icon" aria-hidden="true">↥</span>
+          <span><strong id="fileLabel">Choose ROM ZIP</strong><small>or drop your file here</small></span>
+          <span class="file-arrow" aria-hidden="true">↗</span>
+        </label>
+        <div class="rom-meta" id="romMeta" aria-live="polite">Revision A · 1994 · Your file stays on this device.</div>
+        <div class="launch-options"><div class="display-mode"><span id="classicLabel">Classic</span><button id="enhancedMode" class="mode-switch" type="button" role="switch" aria-checked="true" aria-label="Enhanced graphics" aria-describedby="modeDescription"><span></span></button><span id="enhancedLabel" class="selected">Enhanced</span></div><span id="status" role="status">Preparing engine…</span></div>
+        <p id="modeDescription" class="mode-description">Native window resolution · Widescreen view</p>
+        <button type="button" id="startBtn" class="launch-btn" disabled><span id="startLabel">Enter arcade</span><span aria-hidden="true">→</span></button>
+        <p class="first-run">First visit: Single cabinet · Export region · Zero credits.<br>Let attract mode play, or insert a coin to race.</p>
+      </section>
+      <section class="controls-guide" aria-label="How to play">
+        <div class="guide-heading"><span>DRIVER CONTROLS</span><span class="guide-rule"></span></div>
+        <div class="guide-columns">
+          <div><h2><span aria-hidden="true">⌨</span> Keyboard</h2><dl>
+            <div><dt>Steer / accelerate / brake</dt><dd><kbd>←</kbd><kbd>→</kbd> <kbd>↑</kbd><kbd>↓</kbd></dd></div>
+            <div><dt>Insert coin / start</dt><dd><kbd>5</kbd> <kbd>Enter</kbd></dd></div>
+            <div><dt>Gears / shift down & up</dt><dd><kbd>1–4</kbd> <kbd>Q</kbd><kbd>W</kbd></dd></div>
+            <div><dt>Camera views</dt><dd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><kbd>F</kbd></dd></div>
+          </dl></div>
+          <div><h2><span aria-hidden="true">✚</span> Gamepad</h2><dl>
+            <div><dt>Steer</dt><dd>Left stick</dd></div>
+            <div><dt>Accelerate / brake</dt><dd>RT / LT</dd></div>
+            <div><dt>Shift down / up</dt><dd>LB / RB</dd></div>
+            <div><dt>Coin / start / camera</dt><dd>Back / Start / A B X Y</dd></div>
+          </dl></div>
+        </div>
+        <p class="touch-guide">On phone: drag the left pad to steer; hold GAS or BRAKE with your right thumb. Tap + / − to shift and VIEW to change camera. COIN adds credit; START begins a race. GAS also confirms selections. ☰ pauses; ⋯ reveals F2 and arcade menu controls. Landscape works best.</p>
+        <p class="service-note"><kbd>F2</kbd><span>Opens the original arcade settings. <b>F / S</b> moves the cursor, <b>D / S</b> changes a value, and <b>Enter</b> selects. Choose <b>EXIT</b> to return. <b>F3</b> is the service button.</span></p>
+        <p class="guide-footer">Press the accelerator to confirm your car and circuit. <kbd>Esc</kbd> brings this menu back.</p>
+      </section>
+    </div>
+  </div>
+  <script src="daytona_engine.js" defer></script><script type="module" src="main.js"></script>
+</body>
+</html>

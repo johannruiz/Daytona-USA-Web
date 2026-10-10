@@ -18,8 +18,7 @@ emcmake cmake -S "$REPO" -B "$REPO/build-web" -G Ninja \
   -DM2_SOFTFLOAT_PORTABLE=ON \
   -DM2_GEN_ROOT="$REPO/build-daytona/gen"
 cmake --build "$REPO/build-web" --target daytona_web --parallel 4
-cp "$REPO/platform/web/index.html" "$REPO/build-web/web/index.html"
-cp "$REPO/platform/web/main.js" "$REPO/build-web/web/main.js"
-cp "$REPO/platform/web/style.css" "$REPO/build-web/web/style.css"
+# CMake copies every web asset, including renderer.js and model2.wgsl.
+cp "$SELF/web/LEEME.txt" "$SELF/scripts/serve.js" "$SELF/LICENSE" "$SELF/THIRD_PARTY.md" "$REPO/build-web/web/"
 echo "Archivos web: $REPO/build-web/web"
 echo "Sirve con: cd '$REPO/build-web/web' && python3 -m http.server 8080"

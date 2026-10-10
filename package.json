@@ -1,0 +1,14 @@
+{
+  "name": "daytona-webgpu",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/nvram.test.js",
+    "test:browser": "node tests/browser-smoke.cjs",
+    "serve": "node scripts/serve.js",
+    "test:mobile": "node tests/mobile-controls.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}

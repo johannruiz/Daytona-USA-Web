@@ -7,12 +7,13 @@ if(NOT EXISTS "${WEB_GEN_DIR}/gen_table.cpp" OR NOT EXISTS "${WEB_TGP}" OR NOT E
     message(FATAL_ERROR "Faltan los C++ generados. Ejecuta recompile.py --set daytona --build-dir build-daytona en el host")
 endif()
 file(GLOB WEB_GEN_SOURCES CONFIGURE_DEPENDS "${WEB_GEN_DIR}/*.cpp")
-add_executable(daytona_web platform/web/daytona_web.cpp ${WEB_GEN_SOURCES} ${WEB_TGP} ${WEB_SND})
+add_executable(daytona_web platform/web/daytona_web.cpp platform/web/daytona_gpu.cpp ${WEB_GEN_SOURCES} ${WEB_TGP} ${WEB_SND})
 target_include_directories(daytona_web PRIVATE "${CMAKE_SOURCE_DIR}/src")
 target_link_libraries(daytona_web PRIVATE runtime)
 # Exceptions are used by the ROM importer and the game runtime.
 # Emscripten otherwise disables them and rejects throw/catch at build time.
 target_compile_options(runtime PUBLIC -fexceptions)
+target_compile_definitions(runtime PRIVATE M2_WEBGPU=1)
 target_compile_options(ymfm PRIVATE -fexceptions)
 target_compile_options(i960 PRIVATE -fexceptions)
 target_compile_options(trace PRIVATE -fexceptions)
@@ -25,7 +26,7 @@ set_target_properties(daytona_web PROPERTIES
 target_link_options(daytona_web PRIVATE
     -O3
     -fexceptions
-    -sNO_ENTRY=1
+    --no-entry
     -sMODULARIZE=1
     -sEXPORT_NAME=createDaytonaModule
     -sALLOW_MEMORY_GROWTH=1
@@ -34,5 +35,9 @@ target_link_options(daytona_web PRIVATE
     -sSTACK_SIZE=16777216
     -sFILESYSTEM=1
     -sENVIRONMENT=web
-    "-sEXPORTED_FUNCTIONS=['_daytona_load','_daytona_error','_daytona_close','_daytona_ready','_daytona_width','_daytona_height','_daytona_frame_ptr','_daytona_step','_daytona_audio_frames','_daytona_audio_ptr','_daytona_total_frames','_daytona_eeprom_ptr','_daytona_eeprom_size','_daytona_backup_ptr','_daytona_backup_size','_daytona_eeprom_dirty']"
-    "-sEXPORTED_RUNTIME_METHODS=['FS','HEAPU8','HEAPF32']")
+    "-sEXPORTED_FUNCTIONS=['_daytona_set_display','_daytona_load','_daytona_error','_daytona_close','_daytona_ready','_daytona_width','_daytona_height','_daytona_frame_ptr','_daytona_step','_daytona_audio_frames','_daytona_audio_ptr','_daytona_total_frames','_daytona_eeprom_ptr','_daytona_eeprom_size','_daytona_backup_ptr','_daytona_backup_size','_daytona_eeprom_dirty','_daytona_vertices_ptr','_daytona_vertices_count','_daytona_batches_ptr','_daytona_batches_count','_daytona_background_ptr','_daytona_foreground_ptr','_daytona_tex0_ptr','_daytona_tex1_ptr','_daytona_texture_generation','_daytona_luma_ptr','_daytona_xlat_ptr']"
+    "-sEXPORTED_RUNTIME_METHODS=['FS','ccall','HEAPU8','HEAPF32']")
+
+foreach(WEB_ASSET index.html main.js style.css renderer.js model2.wgsl nvram.js touch.js daytona-logo.png)
+    configure_file("${CMAKE_SOURCE_DIR}/platform/web/${WEB_ASSET}" "${CMAKE_BINARY_DIR}/web/${WEB_ASSET}" COPYONLY)
+endforeach()

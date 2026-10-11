@@ -13,6 +13,7 @@ const ui = {
 };
 let wasm = null, renderer = null, started = false, running = false;
 let ctxAudio = null, audioNext = 0;
+let soundMuted = false;
 let lastTime = 0, lagMs = 0, statTime = performance.now(), rendered = 0;
 const FIXED_MS = 1000 / (16000000 / (656 * 424));
 const held = new Set();
@@ -105,7 +106,7 @@ window.addEventListener('keyup',(event)=>held.delete(event.code));
 window.addEventListener('blur',()=>held.clear());
 
 function pushAudio() {
-  if(!ctxAudio || ctxAudio.state!=='running' || !audioLoaded)return;
+  if(soundMuted || !ctxAudio || ctxAudio.state!=='running' || !audioLoaded)return;
   const frames=wasm._daytona_audio_frames();
   const ptr=wasm._daytona_audio_ptr();
   if(!ptr||frames<=0)return;
@@ -142,12 +143,42 @@ function frame(now) {
 }
 
 async function activateAudio() {
+  if(soundMuted)return;
   try {
-    ctxAudio ??= new (window.AudioContext||window.webkitAudioContext)({sampleRate:48000});
-    await ctxAudio.resume();audioNext=ctxAudio.currentTime+0.05;
-    ui.sound.setAttribute('aria-label','Mute sound');ui.sound.title='Mute sound';
-  }catch(err){ ui.sound.title='Sound unavailable';console.warn(err); }
+    // Safari's ambient audio session obeys the iPhone silent switch.
+    try {if(navigator.audioSession)navigator.audioSession.type='playback';}catch(err){console.warn(err);}
+    // Use the device's output rate; the original 48 kHz buffers are resampled.
+    if(!ctxAudio || ctxAudio.state==='closed')ctxAudio=new (window.AudioContext||window.webkitAudioContext)();
+    // Both calls must occur inside the trusted tap, before awaiting anything.
+    const resumed=ctxAudio.resume();
+    const unlock=ctxAudio.createBufferSource();
+    unlock.buffer=ctxAudio.createBuffer(1,1,ctxAudio.sampleRate);
+    unlock.connect(ctxAudio.destination);unlock.onended=()=>unlock.disconnect();unlock.start();
+    await resumed;audioNext=ctxAudio.currentTime+0.05;
+    updateSoundControls();
+  }catch(err){updateSoundControls('Tap to retry sound');console.warn(err);}
 }
+function updateSoundControls(label=soundMuted?'Unmute sound':'Mute sound') {
+  for(const button of [ui.sound,document.querySelector('[data-sound]')]){
+    button.setAttribute('aria-label',label);button.title=label;
+    button.setAttribute('aria-pressed',String(soundMuted));
+    button.textContent=soundMuted?'♪̸':'♫';
+  }
+}
+async function toggleSound() {
+  soundMuted=!soundMuted;updateSoundControls();
+  if(soundMuted)await ctxAudio?.suspend();
+  else await activateAudio();
+}
+const gameSurface=document.querySelector('.arcade');
+// Keep Safari pinch, double-tap zoom, selection and long-press menus off the
+// driving surface. The separate launcher retains its normal reading gestures.
+for(const name of ['gesturestart','gesturechange','gestureend','contextmenu','selectstart']){
+  gameSurface.addEventListener(name,event=>{if(running)event.preventDefault();},{passive:false});
+}
+gameSurface.addEventListener('pointerdown',()=>{
+  if(running && audioLoaded && !soundMuted && ctxAudio?.state!=='running')void activateAudio();
+},{capture:true});
 async function loadROM(file) {
   if(!wasm){failure('The arcade engine is still loading. Please try again in a moment.');return;}
   if(!/\.zip$/i.test(file.name)){failure('Choose a Daytona USA Revision A (1994) ROM ZIP.');return;}
@@ -203,11 +234,8 @@ ui.mode.addEventListener('click',()=>{
 });
 ui.menu.addEventListener('click',openMenu);
 ui.close.addEventListener('click',resumeGame);
-ui.sound.addEventListener('click',async()=>{
-  if(ctxAudio?.state==='running'){
-    await ctxAudio.suspend();ui.sound.title='Unmute sound';ui.sound.setAttribute('aria-label','Unmute sound');
-  }else await activateAudio();
-});
+ui.sound.addEventListener('click',toggleSound);
+document.querySelector('[data-sound]').addEventListener('click',toggleSound);
 ui.fullscreen.addEventListener('click',async()=>{
   if(document.fullscreenElement)await document.exitFullscreen();
   else await document.documentElement.requestFullscreen?.();
@@ -233,7 +261,7 @@ window.addEventListener('pagehide',saveNVRAM);
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden){saveNVRAM();held.clear();if(started)openMenu();}
 });
-export function getArcadeState(){return {running,enhanced,touch:touch.read(),gear:currentGear,ready:!!wasm?._daytona_ready(),frames:wasm?._daytona_total_frames()||0,width:wasm?._daytona_width(),height:wasm?._daytona_height()};}
+export function getArcadeState(){return {running,enhanced,audioState:ctxAudio?.state||'uninitialized',soundMuted,touch:touch.read(),gear:currentGear,ready:!!wasm?._daytona_ready(),frames:wasm?._daytona_total_frames()||0,width:wasm?._daytona_width(),height:wasm?._daytona_height()};}
 document.documentElement.classList.add('launcher-open');
 ui.dropzone.focus();
 

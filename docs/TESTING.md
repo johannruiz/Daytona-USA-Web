@@ -29,10 +29,10 @@ $env:TEST_ROM='C:/path/to/your/daytona.zip'
 npm run test:mobile
 ```
 
-Requires the local server and installed Chrome. Checks simultaneous steering/gas, separate releases, cancellation, brake, gear shift, camera, pause, settings panel availability and portrait/landscape canvas behavior. Evidence goes to ignored `build/` files. No ROM is part of the test repository.
+Requires the local server and installed Chrome. Checks simultaneous steering/gas, separate releases, cancellation, brake, gear shift, camera, pause, settings panel availability and portrait/landscape canvas behavior. It also checks pinch/double-tap zoom suppression, selection and context-menu guards, real non-silent stereo audio scheduling, touch audio activation, mute persistence, and a simulated Safari audio-session/interruption branch. The audio session probe runs in Chrome; it does not establish physical iPhone speaker output. Evidence goes to ignored `build/` files. No ROM is part of the test repository.
 
 ## Manual release checks
 
 Check a real race on each track, all camera views, keyboard/gamepad/touch, sound and mute, repeated imports, tab switching, saving/reloading, fullscreen and orientation changes. Compare Classic with Enhanced +1 for scenery popping and performance. Record browser/OS/device and whether hardware or emulation was used. A high display FPS counter does not by itself prove full-speed game simulation or audio correctness.
 
-Physical Android/iPhone coverage, audio fidelity and exhaustive track coverage remain open. The historical bridge fixture tests are not current renderer validation.
+The owner reports stable 30 FPS on iPhone, with no sound before the mobile audio fix. Physical iPhone speaker output after this fix, Android coverage, audio fidelity and exhaustive track coverage remain open. Current renderer validation uses the real engine and WebGPU composition checks.

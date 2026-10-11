@@ -1,4 +1,4 @@
-> Package note: this is the compiled Pages-ready distribution. It includes the game engine JS/WASM and also the port sources. References below to the community source archive describe the separate source-only artifact.
+> Package note: this is the compiled Pages-ready distribution. It includes the game engine JS/WASM and also the port sources. References below to source-only archives describe a separate distribution scope.
 
 # Preparing a community release
 
@@ -8,13 +8,13 @@ Publish this as an **experimental source preview**. A suggested first tag is `v0
 
 ## Public source package
 
-Include the port sources, supported tests, build helpers, documentation, issue templates and required software notices. Exclude `upstream/`, `tools/`, `dist/`, `build/`, ROM archives, extracted chips, generated processor sources, compiled engines, local logs, credentials and dependency caches. The prepared `github-community/` folder follows this source-only scope.
+Include the port sources, supported tests, build helpers, documentation, issue templates and required software notices. Exclude `upstream/`, `tools/`, `dist/`, `build/`, ROM archives, extracted chips, generated processor sources, compiled engines, local logs, credentials and dependency caches. When preparing a source-only archive, copy only the source/documentation files in this working tree and omit the local generated directories.
 
 The user-supplied logo is present so the frontend and existing build helpers remain complete. Its separate permission/provenance still needs an owner decision before public release; the software license does not cover the branding. See NOTICE.md.
 
 ## Binary or playable releases
 
-The local `daytona_webgpu_compilado.zip` is not the prepared community source archive. Its engine contains recompiled game program instructions from the user's ROM even though the ZIP does not contain the original ROM ZIP. Do not treat the runtime ROM picker as proof that a compiled release contains no game-derived code. Resolve that distribution decision separately before uploading engine binaries or deploying a public playable site.
+The local `daytona_webgpu_github_pages.zip` is the compiled Pages distribution, not a source-only archive. Its engine contains recompiled game program instructions from the user's ROM even though the ZIP does not contain the original ROM ZIP. Do not treat the runtime ROM picker as proof that a compiled release contains no game-derived code. Resolve that distribution decision separately before uploading engine binaries or deploying a public playable site.
 
 ## Checklist
 
@@ -28,7 +28,7 @@ The local `daytona_webgpu_compilado.zip` is not the prepared community source ar
 
 ## Create a GitHub repository later
 
-Create an empty repository in your account. Open a terminal in the prepared `github-community` folder. Replace the remote placeholder with the repository URL you created:
+Create an empty repository in your account. For a source-only repository, first copy the source/documentation files to a clean folder without build output, then open a terminal in that folder. Replace the remote placeholder with the repository URL you created:
 
 ```sh
 git init -b main

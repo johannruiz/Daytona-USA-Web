@@ -14,10 +14,12 @@
 - The new transparent logo is displayed directly on the modal. The audio checkbox is replaced by the mode switch; sound loads automatically.
 - Three NVRAM tests pass: first-run defaults, existing saved settings/credits preserved, and invalid or inaccessible storage fallback.
 
-3D geometry is rasterized in WebGPU. System 24 layers retain original CPU composition. Audio fidelity, all tracks, gamepads and browsers have not been exhaustively validated. Original tests/stubs are historical bridge fixtures; current validation uses the real engine and tests/browser-smoke.cjs.
+3D geometry is rasterized in WebGPU. System 24 layers retain original CPU composition. Audio fidelity, all tracks, gamepads and browsers have not been exhaustively validated. Legacy stub fixtures were removed. Current validation uses the real engine and tests/browser-smoke.cjs.
 
 ## Draw distance and phone controls
 
 Enhanced enables only draw distance +1; Classic uses level 0. The generated Revision A program contains rt::hook_draw_list, which expands the scenery list to the full 5×5 grid and raises the original geometry budget from 5,000 to 10,000.
 
-The rebuilt engine ran in Chrome with emulated phone touch input. Simultaneous steering and gas, independent release, cancellation, braking, shifting, camera changes, menu pause and portrait/landscape rendering passed. Evidence: build/mobile-landscape-game.png, build/mobile-portrait-game.png and build/mobile-errors.json. Portrait preserves the full arcade HUD; landscape widens the view. Physical phone performance has not been measured.
+The rebuilt engine ran in Chrome with emulated phone touch input. Simultaneous steering and gas, independent release, cancellation, braking, shifting, camera changes, menu pause and portrait/landscape rendering passed. Evidence: build/mobile-landscape-game.png, build/mobile-portrait-game.png and build/mobile-errors.json. Portrait preserves the full arcade HUD; landscape widens the view. The owner reports stable 30 FPS on iPhone, with no sound before the mobile audio fix.
+
+The driving surface now suppresses zoom, selection and long-press menus without restricting the separate launcher. Audio uses the device output rate, requests Safari's playback session, unlocks within the start tap and retries after interruption on a driving tap. A mobile sound toggle preserves mute through pause/resume. Automated checks use real Chrome audio and a simulated Safari session/interruption; physical iPhone speaker output after the fix still needs confirmation.

@@ -1,0 +1,34 @@
+Daytona USA — WebGPU + WebAssembly
+
+Serve this folder with:
+  node serve.js . 8080
+or:
+  python -m http.server 8080
+
+Open http://localhost:8080 and import your Revision A (1994) ROM ZIP.
+A WebGPU browser is required. Do not open index.html through file://.
+
+First run: Single cabinet, Export region, zero credits. Let attract mode
+play, or insert a coin to race. Existing saves retain settings and credits.
+
+Arrow keys: steering and pedals. 5: coin. Enter: start.
+1–4: gear. Q/W: shift down/up. A/S/D/F: camera views.
+Gamepad: left stick, RT/LT pedals, LB/RB gears, Back coin, Start start,
+A/B/X/Y camera views. Accelerator confirms course and car selections.
+
+F2 opens original arcade settings. F/S moves the cursor; D/S changes values;
+Enter selects. Choose EXIT to return. F3 is the service button.
+Escape opens/closes the import menu and pauses/resumes the game.
+Enhanced is the default: native window resolution and a wider 3D camera view.
+Enhanced also enables scenery draw distance +1.
+Classic restores the original arcade resolution, aspect ratio and draw distance.
+Phone: left pad steers; GAS/BRAKE are pedals; +/− shifts; VIEW changes camera.
+COIN adds credit; START starts. Menu pauses; ⋯ reveals F2/settings controls.
+Use landscape for widescreen. Portrait keeps the full original HUD visible.
+Move the pointer for menu, sound and fullscreen buttons.
+Settings are saved locally for this browser and server address.
+
+Verified with the original engine and supplied ROM in Chrome/NVIDIA:
+boot, attract mode, track selection, racing and local saves.
+Audio fidelity has not been certified. See LICENSE and THIRD_PARTY.md.
+This package does not include the ROM ZIP.

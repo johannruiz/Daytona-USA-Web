@@ -9,6 +9,8 @@
 - Fresh Single / Export settings and zero credits; existing NVRAM preserved.
 - Keyboard, standard gamepad and multitouch phone controls with arcade settings access.
 - Portrait preserves the full HUD; landscape uses the wider camera.
+- Driving surface prevents pinch/double-tap zoom, text selection and long-press menus; the ROM menu retains normal reading gestures.
+- iPhone playback audio session, touch-based audio recovery and a mobile sound toggle that preserves mute through pause/resume.
 - Subtle FPS counter; no visible game-frame counter.
 - Source-only community documentation and issue templates.
 

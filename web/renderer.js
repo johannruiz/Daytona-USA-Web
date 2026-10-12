@@ -63,7 +63,7 @@ export async function createRenderer(canvas, onFailure) {
     [screen,texram,luma,xlat].map((b,binding)=>({binding,resource:{buffer:b}}))});
   let vertexBuffer=null, vertexCapacity=0, depth=null, back=null, front=null;
   let backGroup,frontGroup,width=0,height=0,outputWidth=0,outputHeight=0,textureGeneration=-1;
-  let enhanced=false,displayKey='';
+  let enhanced=false,drawDistance=1,displayKey='';
   const extent=()=>{
     const dpr=globalThis.devicePixelRatio || 1, limit=device.limits.maxTextureDimension2D;
     const w=Math.max(1,Math.round(canvas.clientWidth*dpr)),h=Math.max(1,Math.round(canvas.clientHeight*dpr));
@@ -86,10 +86,12 @@ export async function createRenderer(canvas, onFailure) {
   return {
     reset() {textureGeneration=-1;displayKey='';},
     setEnhanced(on) {enhanced=on;displayKey='';canvas.classList.toggle('enhanced',on);},
+    setDrawDistance(level) {drawDistance=level;enhanced=level>0;displayKey='';canvas.classList.toggle('enhanced',enhanced);},
     prepare(wasm) {
       const [w,h]=enhanced?extent():[496,384];
       const key=`${enhanced}:${w}:${h}`;
       if(key!==displayKey){
+        wasm._daytona_set_draw_distance(enhanced?drawDistance:0);
         // Portrait phones keep the complete arcade image, leaving thumb room
         // below it. Wide windows still reveal additional scenery.
         const gameHeight=enhanced?Math.min(h,Math.ceil(w*384/496)):h;

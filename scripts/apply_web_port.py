@@ -54,9 +54,9 @@ if "// WebGPU widened backdrop" not in video_text:
 #endif
         // Save the exact two System-24 layers""", 1)
 video.write_text(video_text, encoding="utf-8")
-for name in ("daytona_web.cmake", "daytona_web.cpp", "daytona_gpu.cpp", "daytona_gpu.h"):
+for name in ("daytona_web.cmake", "daytona_web.cpp", "daytona_gpu.cpp", "daytona_gpu.h", "daytona_haptics.h"):
     shutil.copy2(SOURCE / "bridge" / name, out / name)
-for name in ("index.html", "main.js", "style.css", "renderer.js", "model2.wgsl", "nvram.js", "touch.js", "daytona-logo.png"):
+for name in ("index.html", "main.js", "style.css", "renderer.js", "model2.wgsl", "nvram.js", "touch.js", "haptics.js", "preferences.js", "steering.js", "wheel.js", "wheel-controls.js", "daytona-logo.png"):
     shutil.copy2(SOURCE / "web" / name, out / name)
 print("Web frontend instalado en", out)
 print("La compilación debe utilizar M2_ROMSET=daytona y los sources generados desde daytona (1994).")

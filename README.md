@@ -11,7 +11,7 @@ Play Daytona USA directly in your browser with widescreen rendering, native wind
 - **Enhanced mode**, enabled by default:
   - Native window resolution, including display pixel density.
   - Widescreen camera that reveals additional scenery.
-  - Increased scenery draw distance at level **+1**.
+  - Increased scenery draw distance: **+2** by default on desktop, **+1** on mobile.
 - **Classic mode** with the original resolution, aspect ratio and draw distance.
 - Arcade-inspired interface with local ROM import.
 - Keyboard, standard gamepad and multitouch controls.
@@ -83,10 +83,17 @@ F2 opens the original arcade settings. Inside that menu, **F/S** moves the curso
 | --- | --- |
 | Steer | Left stick |
 | Accelerate / brake | RT / LT |
+| Gears 1 / 2 / 3 / 4 | B / A / X / Y |
 | Shift down / up | LB / RB |
 | Insert coin | Back / Select |
 | Start | Start |
-| Camera views | A / B / X / Y |
+| Camera views 1 / 2 / 3 / 4 | D-pad ↑ / → / ↓ / ← |
+
+The left stick uses an 8% dead zone and a progressive response for gentler steering near the center, with full steering available at either end.
+
+Controller vibration follows the original game's arcade drive-board commands, using the same force/uncentring conversion as the native frontend. It does not infer collisions, gear changes or road surfaces from player inputs. The controls menu offers intensity from Off to 100%, saved locally, with a 100% default and a maximum motor output of 65%. Vibration stops on pause, loss of focus, disconnect or ROM replacement; short effects also expire if frames stop. Availability depends on browser, platform and controller support for dual rumble.
+
+The separate **Centring** setting defaults to 5%. It translates the existing arcade board model's centring force into a quiet large-motor cue, using the actual steering ADC delivered to the game and the board's spring ramp/dead zone. Because the arcade spring saturates near the centre, its rumble translation is attenuated by the remaining steering travel: small turns are gentle, and the cue grows continuously towards full steering. The underlying force model is unchanged, and the cue still scales with the strength commanded by the game. Force/uncentring effects take priority. This cue is capped at 15% motor output, is silent at the centre or when the board's motor is off, and follows the master vibration intensity. Set Centring to Off to retain only the other effects. Resistance remains silent; no vehicle shake is invented.
 
 ### Phone
 
@@ -147,3 +154,22 @@ See [LICENSE](LICENSE), [THIRD_PARTY.md](THIRD_PARTY.md) and [NOTICE.md](NOTICE.
 Daytona USA and SEGA branding remain separate from the software license. This is an independent community project with no implied affiliation or endorsement.
 
 The compiled WebAssembly engine contains game instructions recompiled from the supplied ROM. Review the distribution scope before publishing compiled binaries or a playable deployment.
+
+
+### Player settings
+
+The main menu offers a controller vibration checkbox and a Settings button. Settings replaces the menu with Graphics, Control and Sound categories; Back or Escape returns to the menu. Changes save automatically on this device and the game stays paused. Turning vibration off retains its intensity settings. The new settings profile starts at 100% vibration and 5% centring; subsequent personal adjustments are preserved.
+
+Graphics offers Classic (original resolution/distance), 1x (mobile default: native resolution, widescreen and engine distance level +1) and 2x (desktop default: engine distance level +2). These labels select the engine's existing scenery levels, not a literal doubling of world distance: +1 draws a 5×5 grid and +2 a 7×7 grid. Sound offers a 0–100% game volume slider through a Web Audio gain node; the existing mute button retains the chosen volume.
+
+Joystick sensitivity is adjustable from 25% to 175%. The 100% default keeps the existing softened response, 8% dead zone and full steering range. Personal sensitivity and graphics selections are saved; device defaults apply when no graphics selection is saved.
+
+### Experimental racing wheels
+
+Open **Settings → Experimental**, press a wheel button if necessary to make it visible, then select the wheel device. Wheel input starts disabled. Assign steering by moving it or choosing its reported axis; capture the centre, full-left and full-right positions. Once valid steering calibration exists, enable **Use configured wheel**. Wheel steering has its own dead zone, inversion and response setting; its default response is linear and does not use the gamepad joystick curve.
+
+Expand **Pedals** to assign accelerator and brake. Capture each released and fully pressed position. This supports inverted axes, analogue buttons, combined pedals sharing an axis, and separate USB pedal devices. Expand **Gears & buttons** for gear positions 1–4, paddles, all four cameras, coin and Start. Buttons can come from a separate shifter/controller; reported hat-switch axes can also be learned. Release controls before starting an assignment and move only the intended control. Escape cancels learning. Live meters, button indicators and raw device inputs let you check the result before racing.
+
+Profiles save locally per browser-reported device ID. Device-index changes are handled when the ID is unique; identical IDs may require reassigning the correct device slot. Disconnected or uncalibrated driving inputs are neutral. A configured wheel takes priority over ordinary controller inputs while available; keyboard/touch input remains usable, and a separate ordinary controller can be used when the wheel is unavailable. No model-specific axis layout is guessed.
+
+This uses the browser's [Gamepad API](https://www.w3.org/TR/gamepad/). Devices that the browser/OS does not expose cannot be configured here; PC mode, manufacturer drivers or another compatible browser may be needed. Manufacturer-specific wheel force feedback is not implemented. Existing rumble is used only if the selected steering device exposes supported dual rumble, using the game's actual drive-board signals. This support has been tested with simulated devices and requires physical-wheel testing before claiming any model is validated.

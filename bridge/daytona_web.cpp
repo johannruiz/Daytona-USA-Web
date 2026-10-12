@@ -6,7 +6,9 @@
 #include "runtime/game_loop.h"
 #include "runtime/rom_import.h"
 #include "runtime/sound_board.h"
+#include "runtime/drive_board.h"
 #include "daytona_gpu.h"
+#include "daytona_haptics.h"
 
 #include <algorithm>
 #include <cmath>
@@ -18,12 +20,14 @@
 
 namespace {
 std::unique_ptr<rt::GameLoop> game;
+rt::DriveBoard drive;
 webgpu::Frame gpu_frame;
 std::string error_message;
 std::vector<float> audio_samples;  // interleaved stereo, 48 kHz
 int audio_frames = 0;
 uint64_t emitted_audio_frames = 0;
 double render_scale = 1.0;
+int draw_distance = 1;
 constexpr double output_rate = 48000.0;
 constexpr unsigned char gear_codes[5] = { 0, 2, 1, 6, 5 };
 
@@ -69,6 +73,7 @@ extern "C" {
 // Return 1 on success, 0 on failure; read daytona_error() on failure.
 int daytona_load(const char *zip_path, int enable_audio) {
     game.reset();
+    drive = rt::DriveBoard{};
     error_message.clear();
     audio_frames = 0;
     audio_samples.clear();
@@ -92,8 +97,17 @@ int daytona_load(const char *zip_path, int enable_audio) {
 }
 
 const char *daytona_error() { return error_message.c_str(); }
-void daytona_close() { game.reset(); audio_samples.clear(); audio_frames = 0; }
+void daytona_close() { game.reset(); drive = rt::DriveBoard{}; audio_samples.clear(); audio_frames = 0; }
 int daytona_ready() { return game != nullptr; }
+// Match the native gamepad frontend: directional force on the large motor,
+// uncentring on the small motor. Centring is exposed separately; resistance
+// remains silent because it has no positional force in the board model.
+// Only the actual game's drive-board commands set these levels.
+float daytona_rumble_strong() { return game ? std::fabs(drive.force()) : 0.0f; }
+float daytona_rumble_weak() { return game ? drive.level(rt::DriveBoard::Effect::Uncentre) : 0.0f; }
+float daytona_rumble_centring() {
+    return game ? webhaptics::centring(drive, game->board().io().inputs.steer) : 0.0f;
+}
 uintptr_t daytona_vertices_ptr() { return reinterpret_cast<uintptr_t>(gpu_frame.verts_.data()); }
 int daytona_vertices_count() { return int(gpu_frame.verts_.size()); }
 uintptr_t daytona_batches_ptr() { return reinterpret_cast<uintptr_t>(gpu_frame.batches_.data()); }
@@ -114,9 +128,14 @@ void daytona_set_display(int enhanced, int width, int height) {
     game->set_aspect(enhanced ? double(width) / double(height) : 0.0);
     game->set_stretch_backdrop(enhanced != 0);
     game->set_hud_edges(enhanced != 0);
-    rt::GameLoop::set_draw_distance(enhanced ? 1 : 0);
+    rt::GameLoop::set_draw_distance(enhanced ? draw_distance : 0);
     render_scale = enhanced ? double(height) / rt::Video::H : 1.0;
 }
+void daytona_set_draw_distance(int level) {
+    draw_distance = std::clamp(level, 0, 2);
+    rt::GameLoop::set_draw_distance(draw_distance);
+}
+int daytona_draw_distance() { return rt::Enhance::draw_distance; }
 // Pointer to ABGR bytes in native little-endian memory (BGRA byte order).
 uintptr_t daytona_frame_ptr() {
     if (!game || game->screen().empty()) return 0;
@@ -162,6 +181,9 @@ int daytona_step(int steer, int accel, int brake, int gear, unsigned buttons) {
     if (buttons & (1u << 7)) in.in1 &= uint8_t(~0x01); // camera 4
     try {
         game->run_frame(in);
+        auto &commands = game->board().io().drive_commands;
+        for (uint8_t command : commands) drive.command(command);
+        commands.clear();
         gpu_frame.update(game->board().video(), render_scale);
         update_audio();
         return 1;

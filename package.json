@@ -3,8 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test tests/nvram.test.js",
+    "test": "node --test tests/nvram.test.js tests/haptics.test.js tests/preferences.test.js tests/steering.test.js tests/wheel.test.js",
     "test:browser": "node tests/browser-smoke.cjs",
+    "test:settings": "node tests/settings-browser.cjs",
+    "test:wheel": "node tests/wheel-browser.cjs",
     "serve": "node scripts/serve.js",
     "test:mobile": "node tests/mobile-controls.cjs"
   },

@@ -1,5 +1,3 @@
-> Package note: this is the compiled Pages-ready distribution. It includes the game engine JS/WASM and also the port sources. References below to the community source archive describe the separate source-only artifact.
-
 # Notices and asset scope
 
 The BSD-3-Clause license in LICENSE applies to the software under that license and preserves the upstream copyright notice: Copyright (c) 2026, Ben Templeman and contributors. Third-party components retain their own notices. See THIRD_PARTY.md.

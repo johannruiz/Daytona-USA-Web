@@ -28,8 +28,9 @@
     </div>
   </main>
   <div id="overlay" class="launcher">
-    <div class="launcher-content">
-      <section class="rom-modal" role="dialog" aria-modal="true" aria-labelledby="gameTitle" aria-describedby="message">
+    <div id="menuDialog" class="launcher-content" role="dialog" aria-modal="true" aria-labelledby="gameTitle">
+      <div id="mainMenu">
+      <section class="rom-modal" aria-describedby="message">
         <button id="closeBtn" class="close-btn" aria-label="Return to game" hidden>×</button>
         <div class="modal-stripe" aria-hidden="true"></div>
         <div class="edition"><span class="checkers" aria-hidden="true"></span> THE ARCADE ORIGINAL <span class="checkers" aria-hidden="true"></span></div>
@@ -42,13 +43,12 @@
           <span class="file-arrow" aria-hidden="true">↗</span>
         </label>
         <div class="rom-meta" id="romMeta" aria-live="polite">Revision A · 1994 · Your file stays on this device.</div>
-        <div class="launch-options"><div class="display-mode"><span id="classicLabel">Classic</span><button id="enhancedMode" class="mode-switch" type="button" role="switch" aria-checked="true" aria-label="Enhanced graphics" aria-describedby="modeDescription"><span></span></button><span id="enhancedLabel" class="selected">Enhanced</span></div><span id="status" role="status">Preparing engine…</span></div>
-        <p id="modeDescription" class="mode-description">Native window resolution · Widescreen view</p>
+        <div class="launch-options"><span id="graphicsSummary">Enhanced · Draw distance 2x</span><span id="status" role="status">Preparing engine…</span></div>
         <button type="button" id="startBtn" class="launch-btn" disabled><span id="startLabel">Enter arcade</span><span aria-hidden="true">→</span></button>
         <p class="first-run">First visit: Single cabinet · Export region · Zero credits.<br>Let attract mode play, or insert a coin to race.</p>
       </section>
       <section class="controls-guide" aria-label="How to play">
-        <div class="guide-heading"><span>DRIVER CONTROLS</span><span class="guide-rule"></span></div>
+        <div class="guide-heading"><span>DRIVER CONTROLS</span><span class="guide-rule"></span><div class="menu-quick-controls"><label><input id="vibrationEnabled" type="checkbox" checked>Controller vibration</label><button id="settingsBtn" type="button" aria-controls="settingsModal"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10 3h4l.5 2.5 2 1.2 2.4-.8 2 3.4-1.9 1.7v2l1.9 1.7-2 3.4-2.4-.8-2 1.2L14 21h-4l-.5-2.5-2-1.2-2.4.8-2-3.4L5 13v-2L3.1 9.3l2-3.4 2.4.8 2-1.2L10 3Z"/><circle cx="12" cy="12" r="3"/></svg>Settings</button></div></div>
         <div class="guide-columns">
           <div><h2><span aria-hidden="true">⌨</span> Keyboard</h2><dl>
             <div><dt>Steer / accelerate / brake</dt><dd><kbd>←</kbd><kbd>→</kbd> <kbd>↑</kbd><kbd>↓</kbd></dd></div>
@@ -59,13 +59,51 @@
           <div><h2><span aria-hidden="true">✚</span> Gamepad</h2><dl>
             <div><dt>Steer</dt><dd>Left stick</dd></div>
             <div><dt>Accelerate / brake</dt><dd>RT / LT</dd></div>
-            <div><dt>Shift down / up</dt><dd>LB / RB</dd></div>
-            <div><dt>Coin / start / camera</dt><dd>Back / Start / A B X Y</dd></div>
+            <div><dt>Gears / shift down & up</dt><dd>B A X Y / LB RB</dd></div>
+            <div><dt>Coin / start / camera</dt><dd>Back / Start / D-pad ↑ → ↓ ←</dd></div>
           </dl></div>
         </div>
         <p class="touch-guide">On phone: drag the left pad to steer; hold GAS or BRAKE with your right thumb. Tap + / − to shift and VIEW to change camera. COIN adds credit; START begins a race. GAS also confirms selections. ☰ pauses; ♫ toggles sound; ⋯ reveals F2 and arcade menu controls. Landscape works best.</p>
         <p class="service-note"><kbd>F2</kbd><span>Opens the original arcade settings. <b>F / S</b> moves the cursor, <b>D / S</b> changes a value, and <b>Enter</b> selects. Choose <b>EXIT</b> to return. <b>F3</b> is the service button.</span></p>
         <p class="guide-footer">Press the accelerator to confirm your car and circuit. <kbd>Esc</kbd> brings this menu back.</p>
+      </section>
+      </div>
+      <section id="settingsModal" class="rom-modal settings-modal" hidden>
+        <div class="modal-stripe" aria-hidden="true"></div>
+        <header class="settings-header"><button id="settingsBack" type="button" aria-label="Back to main menu">← Back</button><h1 id="settingsTitle">Settings</h1></header>
+        <div class="settings-tabs" role="tablist" aria-label="Settings categories">
+          <button id="graphicsTab" type="button" role="tab" aria-selected="true" aria-controls="graphicsPanel"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="13" rx="1.5"/><path d="M8 21h8M12 17v4M6 13l4-4 3 3 3-5 2 3"/></svg>Graphics</button>
+          <button id="controllerTab" type="button" role="tab" aria-selected="false" aria-controls="controllerPanel" tabindex="-1"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 7h10c2 0 3 2 3.5 4l1 6c.3 2-1.8 3-3.2 1.5L15 15H9l-3.3 3.5C4.3 20 2.2 19 2.5 17l1-6C4 9 5 7 7 7Z M6 11h4M8 9v4"/><path d="M16 10h.01M18 12h.01" stroke-width="3"/></svg>Control</button>
+          <button id="soundTab" type="button" role="tab" aria-selected="false" aria-controls="soundPanel" tabindex="-1"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 9h4l5-4v14l-5-4H3V9ZM16 8a6 6 0 0 1 0 8M19 5a10 10 0 0 1 0 14"/></svg>Sound</button>
+          <button id="experimentalTab" type="button" role="tab" aria-selected="false" aria-controls="experimentalPanel" tabindex="-1"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 3h6M10 3v6l-6 10a1.3 1.3 0 0 0 1.2 2h13.6a1.3 1.3 0 0 0 1.2-2L14 9V3M7 15h10M10 18h.01M14 17h.01"/></svg>Experimental</button>
+        </div>
+        <section id="controllerPanel" class="settings-panel" role="tabpanel" aria-labelledby="controllerTab" hidden>
+          <h2>Feel the road</h2><p class="settings-intro">Feedback follows the arcade game's steering forces.</p>
+          <label class="setting-toggle"><span>Controller vibration<small>Turn all controller feedback on or off.</small></span><input id="settingsVibrationEnabled" type="checkbox" checked></label>
+          <div class="setting-slider"><div><label for="rumbleIntensity">Vibration intensity</label><output id="rumbleValue" for="rumbleIntensity">100%</output></div><input id="rumbleIntensity" type="range" min="0" max="100" step="5" value="100" aria-describedby="rumbleHelp"><p id="rumbleHelp">Forces from the arcade wheel, translated into controller vibration.</p></div>
+          <div class="setting-slider"><div><label for="centringIntensity">Centring feedback</label><output id="centringValue" for="centringIntensity">5%</output></div><input id="centringIntensity" type="range" min="0" max="100" step="5" value="5" aria-describedby="centringHelp"><p id="centringHelp">A gentle, gradual cue as you turn. Set to 0 to disable centring only.</p></div>
+          <p id="rumbleStatus" class="device-status" role="status">Connect a controller</p>
+          <div class="setting-slider"><div><label for="joystickSensitivity">Joystick sensitivity</label><output id="joystickSensitivityValue" for="joystickSensitivity">100%</output></div><input id="joystickSensitivity" type="range" min="25" max="175" step="5" value="100" aria-describedby="joystickSensitivityHelp"><p id="joystickSensitivityHelp">100% keeps the current softened steering. Lower for finer turns; higher for a quicker response.</p></div>
+        </section>
+        <section id="graphicsPanel" class="settings-panel" role="tabpanel" aria-labelledby="graphicsTab">
+          <h2>Your view of the circuit</h2><p class="settings-intro">Choose how much scenery is drawn ahead.</p>
+          <fieldset class="distance-options"><legend>Draw distance</legend>
+            <label><input id="distanceClassic" type="radio" name="drawDistance" value="0"><span><strong>Classic</strong><small>Original arcade resolution and distance. No extra scenery.</small></span></label>
+            <label><input id="distance1" type="radio" name="drawDistance" value="1"><span><strong>1x <em id="distance1Default" hidden>Default</em></strong><small>Widescreen, native resolution and extended scenery.</small></span></label>
+            <label><input id="distance2" type="radio" name="drawDistance" value="2" checked><span><strong>2x <em id="distance2Default">Default</em></strong><small>Widescreen with more distant scenery. Higher graphics load.</small></span></label>
+          </fieldset>
+        </section>
+        <section id="soundPanel" class="settings-panel" role="tabpanel" aria-labelledby="soundTab" hidden>
+          <h2>Set the arcade volume</h2><p class="settings-intro">Adjust the music, engine and effects together.</p>
+          <div class="setting-slider"><div><label for="volumeIntensity">Game volume</label><output id="volumeValue" for="volumeIntensity">100%</output></div><input id="volumeIntensity" type="range" min="0" max="100" step="5" value="100" aria-describedby="volumeHelp"><p id="volumeHelp">0 is silent. The in-game mute button keeps this volume setting.</p></div>
+        </section>
+        <section id="experimentalPanel" class="settings-panel" role="tabpanel" aria-labelledby="experimentalTab" hidden>
+          <h2>Racing wheel setup <em class="experimental-badge">Experimental</em></h2>
+          <p class="settings-intro">Choose your wheel, assign its inputs and capture the steering and pedal positions. Profiles save per device.</p>
+          <p class="wheel-help">If a device is missing, press one of its buttons, use PC mode and check its manufacturer's driver. Devices must be recognised by your browser. This setup handles inputs; manufacturer-specific wheel force feedback is not available.</p>
+          <div id="wheelControls"></div>
+        </section>
+        <footer class="settings-footer">Saved automatically on this device.<span>Back returns to the menu · Esc goes back</span></footer>
       </section>
     </div>
   </div>

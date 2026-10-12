@@ -1,5 +1,3 @@
-> Package note: this is the compiled Pages-ready distribution. It includes the game engine JS/WASM and also the port sources. References below to source-only archives describe a separate distribution scope.
-
 # Preparing a community release
 
 ## Current recommendation

@@ -13,14 +13,25 @@ play, or insert a coin to race. Existing saves retain settings and credits.
 
 Arrow keys: steering and pedals. 5: coin. Enter: start.
 1–4: gear. Q/W: shift down/up. A/S/D/F: camera views.
-Gamepad: left stick, RT/LT pedals, LB/RB gears, Back coin, Start start,
-A/B/X/Y camera views. Accelerator confirms course and car selections.
+Gamepad: left stick, RT/LT pedals, B/A/X/Y gears 1/2/3/4, Back coin,
+LB/RB shift down/up (one gear per press).
+Start start, D-pad up/right/down/left camera views 1/2/3/4.
+Stick steering has an 8% dead zone and a gentler progressive response.
+Controller vibration follows the game's arcade drive-board commands.
+Set its intensity in the controls menu (0 = Off); default 100%.
+Separate Centring feedback defaults to 5% and uses the arcade spring force
+and actual steering position. It is silent in the spring's dead zone.
+Feedback grows gradually across the steering travel, following the game's
+commanded spring strength; small turns produce only a gentle cue.
+Set Centring to Off to keep only the other vibration effects.
+Requires a browser/controller supporting dual rumble. Pausing stops it.
+Accelerator confirms course and car selections.
 
 F2 opens original arcade settings. F/S moves the cursor; D/S changes values;
 Enter selects. Choose EXIT to return. F3 is the service button.
 Escape opens/closes the import menu and pauses/resumes the game.
 Enhanced is the default: native window resolution and a wider 3D camera view.
-Enhanced also enables scenery draw distance +1.
+Enhanced defaults to scenery draw distance +2 on desktop, +1 on mobile.
 Classic restores the original arcade resolution, aspect ratio and draw distance.
 Phone: left pad steers; GAS/BRAKE are pedals; +/− shifts; VIEW changes camera.
 COIN adds credit; START starts. Menu pauses; ⋯ reveals F2/settings controls.
@@ -32,3 +43,18 @@ Verified with the original engine and supplied ROM in Chrome/NVIDIA:
 boot, attract mode, track selection, racing and local saves.
 Audio fidelity has not been certified. See LICENSE and THIRD_PARTY.md.
 This package does not include the ROM ZIP.
+
+Settings opens Graphics, Control and Sound categories; Back/Esc returns.
+Graphics: Classic (original distance), 1x (mobile default), or 2x (desktop default; more scenery).
+Sound: game volume slider. Changes save automatically on this device.
+The main vibration checkbox retains intensity settings when switched off.
+
+Joystick sensitivity is adjustable from 25% to 175%. The 100% default keeps the existing softened response, 8% dead zone and full steering range. Personal sensitivity and graphics selections are saved; device defaults apply when no graphics selection is saved.
+Experimental wheel setup: Settings > Experimental. Select the device,
+assign steering and capture centre/full-left/full-right before enabling.
+Assign and calibrate pedals (released/fully pressed); separate USB pedals,
+inverted inputs and combined axes are supported. Map gears, paddles, views,
+coin and Start in Gears & buttons. Live inputs help verify the profile.
+Wheel devices must be exposed by the browser/OS. Press a device button to
+reveal it; PC mode and manufacturer drivers may be needed. No model-specific
+wheel force feedback is sent. Profiles save locally per reported device ID.
